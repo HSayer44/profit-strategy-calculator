@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ar" id="htmlTag" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Profit Strategy Calculator</title>
+    <style>
+        /* CSS Variables for Theme Toggling */
+        :root {
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-main: #2c3e50;
+            --text-muted: #34495e;
+            --input-bg: #ffffff;
+            --input-border: #ddd;
+            --input-text: #000000;
+            --th-bg: #3498db;
+            --td-border: #eee;
+            --tr-hover: #f9f9f9;
+            --info-bg: #e8f4fd;
+            --info-text: #2980b9;
+            --footer-text: #7f8c8d;
+            --btn-bg: #ecf0f1;
+            --btn-text: #2c3e50;
+        }
+
+        body.dark-mode {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-main: #e0e0e0;
+            --text-muted: #b3b3b3;
+            --input-bg: #2c2c2c;
+            --input-border: #444;
+            --input-text: #ffffff;
+            --th-bg: #1f618d;
+            --td-border: #333;
+            --tr-hover: #2a2a2a;
+            --info-bg: #0a2538;
+            --info-text: #6cbbe6;
+            --footer-text: #777;
+            --btn-bg: #333;
+            --btn-text: #e0e0e0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Tajawal", "Cairo";
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            transition: background-color 0.3s ease;
+        }
+
+        .header-controls {
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        html[dir="rtl"] .header-controls {
+            justify-content: flex-end;
+        }
+
+        button.toggle-btn {
+            background-color: var(--btn-bg);
+            color: var(--btn-text);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            font-family: inherit;
+        }
+
+        button.toggle-btn:hover {
+            opacity: 0.8;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            max-width: 900px;
+            width: 100%;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease;
+        }
+
+        h2, h3 {
+            margin-top: 0;
+            text-align: center;
+            color: var(--text-main);
+        }
+
+        h2 { font-size: 1.5rem; }
+        h3 { font-size: 1.25rem; margin-top: 20px; margin-bottom: 15px; }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group.center-input {
+            max-width: 250px;
+            margin: 0 auto 20px auto;
+        }
+
+        label {
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            background: var(--input-bg);
+            border: 2px solid var(--input-border);
+            color: var(--input-text);
+            border-radius: 6px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            margin-top: 10px;
+            border-radius: 6px;
+            border: 1px solid var(--td-border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            min-width: 650px;
+        }
+
+        /* Styling for the vertical single-column table */
+        table.vertical-table {
+            min-width: auto;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        table.vertical-table th {
+            width: 45%;
+        }
+
+        table.vertical-table td {
+            font-size: 1rem;
+        }
+
+        th {
+            background-color: var(--th-bg);
+            color: white;
+            text-align: start;
+            padding: 12px;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--td-border);
+            white-space: nowrap;
+            color: var(--text-main);
+            text-align: start;
+        }
+
+        tr:hover td { background-color: var(--tr-hover); }
+        .highlight { font-weight: bold; color: #27ae60; }
+        .total-highlight { font-weight: bold; color: #e67e22; }
+
+        .info {
+            background: var(--info-bg);
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: var(--info-text);
+            line-height: 1.6;
+        }
+
+        hr {
+            border: 0;
+            height: 1px;
+            background: var(--td-border);
+            margin: 30px 0;
+        }
+
+        footer {
+            margin-top: 30px;
+            color: var(--footer-text);
+            font-size: 0.85rem;
+            text-align: center;
+            flex-grow: 1;
+            display: flex;
+            align-items: flex-end;
+            padding-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header-controls">
+    <button class="toggle-btn" id="langBtn" onclick="toggleLanguage()">عربي</button>
+    <button class="toggle-btn" id="themeBtn" onclick="toggleTheme()">🌙 Dark Mode</button>
+</div>
+
+<div class="card">
+    <h2 id="appTitle">Profit Strategy Calculator</h2>
+    <p class="info" id="appInfo">This calculator assumes each signal generates a <strong>0.6%</strong> profit. Your total earnings are first reduced by the <strong>Platform Fee</strong>, and then the <strong>Transfer Fee</strong> is applied to calculate the final net cash arriving in your wallet.</p>
+
+    <div class="input-grid">
+        <div class="input-group">
+            <label for="baseBalance" id="lblBase">Starting Balance ($)</label>
+            <input type="number" id="baseBalance" value="2000" oninput="calculate()">
+        </div>
+
+        <div class="input-group">
+            <label for="signals" id="lblSignals">Daily Signals</label>
+            <input type="number" id="signals" value="4" step="1" min="1" oninput="calculate()">
+        </div>
+
+        <div class="input-group">
+            <label for="feePercent" id="lblFee">Platform Fee (%)</label>
+            <input type="number" id="feePercent" value="20" step="1" min="0" max="100" oninput="calculate()">
+        </div>
+
+        <div class="input-group">
+            <label for="transferFeePercent" id="lblTransferFee">Transfer Fee (%)</label>
+            <input type="number" id="transferFeePercent" value="5" step="1" min="0" max="100" oninput="calculate()">
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table id="resultsTable">
+            <thead>
+            <tr>
+                <th id="thStrategy">Strategy</th>
+                <th id="thCycle">Duration</th>
+                <th id="thGross">Total Earnings</th>
+                <th id="thNet">Net to Wallet</th>
+                <th id="thMonthly">Est. Monthly Income</th>
+                <th id="thDaily">Initial Daily Profit</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <hr>
+
+    <h3 id="customTitle">Custom Day Calculator</h3>
+    <div class="input-group center-input">
+        <label for="customDays" id="lblCustomDays">Calculate After X Days</label>
+        <input type="number" id="customDays" value="20" step="1" min="1" oninput="calculate()">
+    </div>
+
+    <div class="table-container" style="border: none; overflow: visible;">
+        <table class="vertical-table">
+            <tbody>
+            <tr>
+                <th id="thCustomCurrent">Current Balance</th>
+                <td id="valCurrentBalance"></td>
+            </tr>
+            <tr>
+                <th id="thCustomDuration">After Duration</th>
+                <td id="valAfterDays"></td>
+            </tr>
+            <tr>
+                <th id="thCustomTotal">Total Amount</th>
+                <td id="valTotalAmount" class="total-highlight"></td>
+            </tr>
+            <tr>
+                <th id="thCustomEarnings">Total Earnings (Gross)</th>
+                <td id="valTotalEarnings"></td>
+            </tr>
+            <tr>
+                <th id="thCustomNet">Net to Wallet (After Fees)</th>
+                <td id="valNetWallet" class="highlight"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <hr>
+
+    <h3 id="quickTitle">Quick Withdrawal Calculator</h3>
+    <div class="input-grid">
+        <div class="input-group">
+            <label for="quickAmount" id="lblQuickAmount">Withdrawal Amount ($)</label>
+            <input type="number" id="quickAmount" value="1000" oninput="calculateQuick()">
+        </div>
+
+        <div class="input-group">
+            <label for="quickPlatformFee" id="lblQuickPlatformFee">Platform Fee (%)</label>
+            <input type="number" id="quickPlatformFee" value="20" step="1" min="0" max="100" oninput="calculateQuick()">
+        </div>
+
+        <div class="input-group">
+            <label for="quickTransferFee" id="lblQuickTransferFee">Transfer Fee (%)</label>
+            <input type="number" id="quickTransferFee" value="5" step="1" min="0" max="100" oninput="calculateQuick()">
+        </div>
+    </div>
+
+    <div class="table-container" style="border: none; overflow: visible;">
+        <table class="vertical-table">
+            <tbody>
+            <tr>
+                <th id="thQuickNet">Net to Wallet (After Fees)</th>
+                <td id="valQuickNet" class="highlight"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<footer id="appFooter">
+    تم التطوير بواسطة HaithaM &copy; 2026 <br> شكر خاص لأبو حمص على دعمه
+</footer>
+
+<script>
+    // --- Language Dictionary ---
+    const i18n = {
+        en: {
+            title: "Profit Strategy Calculator",
+            info: "This calculator assumes each signal generates a <strong>0.6%</strong> profit. Your total earnings are first reduced by the <strong>Platform Fee</strong>, and then the <strong>Transfer Fee</strong> is applied to calculate the final net cash arriving in your wallet.",
+            lblBase: "Starting Balance ($)",
+            lblSignals: "Daily Signals",
+            lblFee: "Platform Fee (%)",
+            lblTransferFee: "Transfer Fee (%)",
+            thStrategy: "Strategy",
+            thCycle: "Duration",
+            thGross: "Total Earnings",
+            thNet: "Net to Wallet",
+            thMonthly: "Est. Monthly Income",
+            thDaily: "Initial Daily Profit",
+            customTitle: "Custom Day Calculator",
+            lblCustomDays: "Calculate After X Days",
+            thCustomCurrent: "Current Balance",
+            thCustomDuration: "After Duration",
+            thCustomTotal: "Total Amount",
+            thCustomEarnings: "Total Earnings (Gross)",
+            thCustomNet: "Net to Wallet (After Fees)",
+            quickTitle: "Quick Withdrawal Calculator",
+            lblQuickAmount: "Withdrawal Amount ($)",
+            lblQuickPlatformFee: "Platform Fee (%)",
+            lblQuickTransferFee: "Transfer Fee (%)",
+            thQuickNet: "Net to Wallet (After Fees)",
+            footer: "developed by HaithaM &copy; 2026 <br> Thanks to Abo Homs for his Support",
+            strategies: ["Quick Profits", "Safety & Stability", "The Sweet Spot", "Profit Growth", "Greed Mode?"],
+            daysText: "Days",
+            themeDark: "🌙 Dark Mode",
+            themeLight: "☀️ Light Mode",
+            langBtn: "عربي"
+        },
+        ar: {
+            title: "حاسبة استراتيجية الأرباح",
+            info: "تفترض هذه الحاسبة أن كل إشارة تحقق ربحاً بنسبة <strong>0.6%</strong>. يتم خصم <strong>رسوم المنصة</strong> أولاً من إجمالي أرباحك، ثم تُخصم <strong>رسوم التحويل</strong> لحساب الصافي النهائي الذي سيصل إلى جيبك.",
+            lblBase: "رأس المال ($)",
+            lblSignals: "عدد الإشارات اليومية",
+            lblFee: "رسوم المنصة (%)",
+            lblTransferFee: "رسوم التحويل (%)",
+            thStrategy: "الاستراتيجية",
+            thCycle: "المدة",
+            thGross: "إجمالي الأرباح",
+            thNet: "الصافي في جيبك",
+            thMonthly: "الدخل الشهري المتوقع",
+            thDaily: "الربح اليومي المبدئي",
+            customTitle: "حاسبة الأيام المخصصة",
+            lblCustomDays: "الحساب بعد عدد X من الأيام",
+            thCustomCurrent: "الرصيد الحالي",
+            thCustomDuration: "المدة المحددة",
+            thCustomTotal: "المبلغ الإجمالي",
+            thCustomEarnings: "إجمالي الأرباح",
+            thCustomNet: "الصافي في جيبك (بعد الرسوم)",
+            quickTitle: "حاسبة السحب المباشر",
+            lblQuickAmount: "مبلغ السحب ($)",
+            lblQuickPlatformFee: "رسوم المنصة (%)",
+            lblQuickTransferFee: "رسوم التحويل (%)",
+            thQuickNet: "الصافي في جيبك (بعد الرسوم)",
+            footer: "تم التطوير بواسطة HaithaM &copy; 2026 <br> شكر خاص لأبو حمص على دعمه",
+            strategies: ["أرباح سريعة", "أمان واستقرار", "النقطة المثالية", "نمو الأرباح", "لحية الطماع؟"],
+            daysText: "أيام",
+            themeDark: "🌙 الوضع الداكن",
+            themeLight: "☀️ الوضع الفاتح",
+            langBtn: "English"
+        }
+    };
+
+    let currentLang = 'en';
+    let isDarkMode = false;
+
+    function toggleLanguage() {
+        currentLang = currentLang === 'en' ? 'ar' : 'en';
+
+        document.getElementById('htmlTag').setAttribute('dir', currentLang === 'ar' ? 'rtl' : 'ltr');
+        document.getElementById('htmlTag').setAttribute('lang', currentLang);
+
+        // Update top section labels
+        document.getElementById('appTitle').innerHTML = i18n[currentLang].title;
+        document.getElementById('appInfo').innerHTML = i18n[currentLang].info;
+        document.getElementById('lblBase').innerText = i18n[currentLang].lblBase;
+        document.getElementById('lblSignals').innerText = i18n[currentLang].lblSignals;
+        document.getElementById('lblFee').innerText = i18n[currentLang].lblFee;
+        document.getElementById('lblTransferFee').innerText = i18n[currentLang].lblTransferFee;
+
+        // Update top table headers
+        document.getElementById('thStrategy').innerText = i18n[currentLang].thStrategy;
+        document.getElementById('thCycle').innerText = i18n[currentLang].thCycle;
+        document.getElementById('thGross').innerText = i18n[currentLang].thGross;
+        document.getElementById('thNet').innerText = i18n[currentLang].thNet;
+        document.getElementById('thMonthly').innerText = i18n[currentLang].thMonthly;
+        document.getElementById('thDaily').innerText = i18n[currentLang].thDaily;
+
+        // Update custom section labels
+        document.getElementById('customTitle').innerText = i18n[currentLang].customTitle;
+        document.getElementById('lblCustomDays').innerText = i18n[currentLang].lblCustomDays;
+        document.getElementById('thCustomCurrent').innerText = i18n[currentLang].thCustomCurrent;
+        document.getElementById('thCustomDuration').innerText = i18n[currentLang].thCustomDuration;
+        document.getElementById('thCustomTotal').innerText = i18n[currentLang].thCustomTotal;
+        document.getElementById('thCustomEarnings').innerText = i18n[currentLang].thCustomEarnings;
+        document.getElementById('thCustomNet').innerText = i18n[currentLang].thCustomNet;
+
+        // Update quick section labels
+        document.getElementById('quickTitle').innerText = i18n[currentLang].quickTitle;
+        document.getElementById('lblQuickAmount').innerText = i18n[currentLang].lblQuickAmount;
+        document.getElementById('lblQuickPlatformFee').innerText = i18n[currentLang].lblQuickPlatformFee;
+        document.getElementById('lblQuickTransferFee').innerText = i18n[currentLang].lblQuickTransferFee;
+        document.getElementById('thQuickNet').innerText = i18n[currentLang].thQuickNet;
+
+        document.getElementById('appFooter').innerHTML = i18n[currentLang].footer;
+        document.getElementById('langBtn').innerText = i18n[currentLang].langBtn;
+
+        const themeBtn = document.getElementById('themeBtn');
+        if (isDarkMode) {
+            themeBtn.innerHTML = i18n[currentLang].themeLight;
+        } else {
+            themeBtn.innerHTML = i18n[currentLang].themeDark;
+        }
+
+        calculate();
+        calculateQuick();
+    }
+
+    function toggleTheme() {
+        const body = document.body;
+        const btn = document.getElementById('themeBtn');
+
+        isDarkMode = !isDarkMode;
+        body.classList.toggle('dark-mode');
+
+        if (isDarkMode) {
+            btn.innerHTML = i18n[currentLang].themeLight;
+        } else {
+            btn.innerHTML = i18n[currentLang].themeDark;
+        }
+    }
+
+    function calculate() {
+        const P = parseFloat(document.getElementById('baseBalance').value);
+        const signals = parseFloat(document.getElementById('signals').value);
+        const feeInput = parseFloat(document.getElementById('feePercent').value);
+        const transferFeeInput = parseFloat(document.getElementById('transferFeePercent').value);
+        const customDays = parseInt(document.getElementById('customDays').value);
+
+        const dailyRate = signals * 0.006;
+        const fee = feeInput / 100;
+        const transferFee = transferFeeInput / 100;
+
+        const tbody = document.querySelector('#resultsTable tbody');
+
+        if (isNaN(P) || P <= 0 || isNaN(signals) || signals <= 0 || isNaN(feeInput) || feeInput < 0 || isNaN(transferFeeInput) || transferFeeInput < 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 20px;">${currentLang === 'en' ? 'Please enter valid numbers' : 'الرجاء إدخال أرقام صحيحة'}</td></tr>`;
+            return;
+        }
+
+        const cycles = [
+            { name: i18n[currentLang].strategies[0], days: 5 },
+            { name: i18n[currentLang].strategies[1], days: 7 },
+            { name: i18n[currentLang].strategies[2], days: 10 },
+            { name: i18n[currentLang].strategies[3], days: 14 },
+            { name: i18n[currentLang].strategies[4], days: 30 }
+        ];
+
+        // 1. Render Top Table
+        tbody.innerHTML = '';
+        cycles.forEach(cycle => {
+            const amountAfterCycle = P * Math.pow((1 + dailyRate), cycle.days);
+            const totalEarnings = amountAfterCycle - P;
+            const afterPlatformFee = totalEarnings * (1 - fee);
+            const netToWallet = afterPlatformFee * (1 - transferFee);
+            const cyclesInMonth = 30 / cycle.days;
+            const monthlyNet = netToWallet * cyclesInMonth;
+            const firstDayEarn = P * dailyRate;
+
+            const row = `
+                <tr>
+                    <td>${cycle.name}</td>
+                    <td>${cycle.days} ${i18n[currentLang].daysText}</td>
+                    <td>$${totalEarnings.toFixed(2)}</td>
+                    <td class="highlight">$${netToWallet.toFixed(2)}</td>
+                    <td class="highlight">$${monthlyNet.toFixed(2)}</td>
+                    <td>$${firstDayEarn.toFixed(2)}</td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+
+        // 2. Render Custom Days Table
+        if (!isNaN(customDays) && customDays > 0) {
+            const customAmount = P * Math.pow((1 + dailyRate), customDays);
+            const customEarnings = customAmount - P;
+            const customNet = (customEarnings * (1 - fee)) * (1 - transferFee);
+
+            document.getElementById('valCurrentBalance').innerText = '$' + P.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('valAfterDays').innerText = customDays + ' ' + i18n[currentLang].daysText;
+            document.getElementById('valTotalAmount').innerText = '$' + customAmount.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('valTotalEarnings').innerText = '$' + customEarnings.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('valNetWallet').innerText = '$' + customNet.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        }
+    }
+
+    function calculateQuick() {
+        const amount = parseFloat(document.getElementById('quickAmount').value);
+        const pFee = parseFloat(document.getElementById('quickPlatformFee').value) / 100;
+        const tFee = parseFloat(document.getElementById('quickTransferFee').value) / 100;
+
+        if (isNaN(amount) || amount < 0 || isNaN(pFee) || pFee < 0 || isNaN(tFee) || tFee < 0) {
+            document.getElementById('valQuickNet').innerText = '-';
+            return;
+        }
+
+        // Apply Platform fee, then Transfer fee on the remainder
+        const afterPlatform = amount * (1 - pFee);
+        const finalNet = afterPlatform * (1 - tFee);
+
+        document.getElementById('valQuickNet').innerText = '$' + finalNet.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+
+    // Run calculations once on load
+    calculate();
+    calculateQuick();
+    // Instantly toggle to Arabic on load
+    toggleLanguage();
+</script>
+
+</body>
+</html>
